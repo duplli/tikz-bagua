@@ -1,0 +1,165 @@
+%% This is file 'tikz-bagua.sty'
+%%
+%% Developed by Xu Wang
+%% Copyright (C) 2021 by Xu Wang <cwangx@hotmail.com>
+%%
+%% It may be distributed and/or modified under the conditions of
+%% the LaTeX Project Public License (LPPL).
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{bagua}[2021/10/17 v1.0 draw Bagua in Yijing via tikz package]
+
+\RequirePackage{tikz}
+\RequirePackage{xstring}
+\RequirePackage{bitset}
+\RequirePackage{xparse}
+\RequirePackage{xintexpr}
+
+%%\taiji[<scale>]
+\newcommand\taiji[1][0.816]{% taiji yinyang
+	\begin{tikzpicture}[baseline=-0.3em,scale=#1]
+		\draw (0,0) circle (0.5em);
+		\fill (0,-0.5em) arc (270:90:0.25em) arc (-90:90:0.25em) arc (90:270:0.5em);
+		\fill (0,-0.25em) circle (0.05em);
+		\fill [fill=white] (0,0.25em) circle (0.05em);
+	\end{tikzpicture}%
+}
+
+%%\drawliangyi[<yshift>]{<0 or 1>}
+\newcommand\drawliangyi[2][0]{%
+	\ifnum #2=0 \draw (0,#1) -- (1em/3,#1) (2em/3,#1) -- (1em,#1)%;%
+	\else%
+		\ifnum #2=1 \draw (0,#1) -- (1em,#1)%;%
+		\else \node {Error!}%
+		\fi%
+	\fi%
+}
+
+%%\liangyi{<0 or 1>}[<scale>]
+\NewDocumentCommand\liangyi{mO{1}}{%
+	\IfInteger{#1}{%
+		\xintifboolexpr{#1 = 0 || #1 = 1}{%
+			\begin{tikzpicture}[baseline=-0.3em,scale=#2]%
+				\drawliangyi{#1};%
+		\end{tikzpicture}}{\@latex@error{Error! Please check whether \#1 is 0 or 1.}{}}%
+	}{\@latex@error{Error! Please check whether \#1 is integer.}{}}%
+}
+
+%%\sixiang{<binary>}[<scale>]
+%%\sixiang*{<decimal>}[<scale>]
+\NewDocumentCommand\sixiang{smO{1}}{% \sixiang{11}=\sixiang*{3}
+	\IfInteger{#2}{% begin of if #2 is an integer
+		\IfBooleanTF#1%
+		{\xintifboolexpr{#2 >= 0 && #2 < 4}% begin of If a star is seen
+			{\bitsetSetDec{sixiangdec}{#2}%
+				\begin{tikzpicture}[baseline=-0.5em,scale=#3]%[baseline=-0.225em] 
+					\foreach \j in {1,0}
+					{
+						\drawliangyi[-\j*0.408em]{\bitsetGet{sixiangdec}{\j}};
+					}
+			\end{tikzpicture}}{\@latex@error{Error! Please check whether 0<=\#1<4.}{}}%
+		}% end of If a star is seen
+		{\StrLen{#2}[\lengthforbinary]%begin of binary
+			\xintifboolexpr{\lengthforbinary=1 || \lengthforbinary=2}{%
+				\bitsetSetBin{sixiangbin}{#2}%
+				\begin{tikzpicture}[baseline=-0.5em,scale=#3]%[baseline=-0.225em]
+					\foreach \j in {1,0}
+					{
+						\drawliangyi[-\j*0.408em]{\bitsetGet{sixiangbin}{\j}};
+					}
+				\end{tikzpicture}%
+			}{\@latex@error{Error! Please check whether 0<=\#1<=11.}{}}%end of binary
+		}%     If no star is seen
+	}% end of if #2 is an integer
+	{\@latex@error{Error! Please check whether \#1 is integer.}{}}% else #2 is not an integer
+}
+
+%%\bagua{<binary>}[<scale>]
+%%\bagua*{<decimal>}[<scale>]
+\NewDocumentCommand\bagua{smO{1}}{% \bagua{101}=\bagua*{5}
+	\IfInteger{#2}{% begin of if #2 is an integer
+		\IfBooleanTF#1%
+		{%% begin of If a star is seen
+			\bitsetSetDec{baguadec}{#2}%
+			\xintifboolexpr {#2 >= 0 && #2 <8}
+			{%
+				\begin{tikzpicture}[baseline=-0.714em,scale=#3]
+					\foreach \j in {2,1,0}
+					{
+						\drawliangyi[-\j*0.408em]{\bitsetGet{baguadec}{\j}};
+					}
+				\end{tikzpicture}%
+			}%
+			{\@latex@error{Error! Please check whether 0<=\#1<8.}{}}%
+		}%% end of If a star is seen
+		{%% begin of If no star is seen
+			\bitsetSetBin{baguabin}{#2}%
+			\StrLen{#2}[\lengthforbinary]%
+			\xintifboolexpr{\lengthforbinary > 0 && \lengthforbinary <4}%
+			{%
+				\begin{tikzpicture}[baseline=-0.714em,scale=#3]
+					\foreach \j in {2,1,0}
+					{
+						\drawliangyi[-\j*0.408em]{\bitsetGet{baguabin}{\j}};
+					}
+				\end{tikzpicture}%
+			}%
+			{\@latex@error{Error! Please check whether 0<=\#1<1000.}{}}%
+		}%% end of If no star is seen
+	}% end of if #2 is an integer
+	{\@latex@error{Error! Please check whether \#1 is integer.}{}}% else #2 is not an integer
+}
+
+%%\Bagua[<2 default, 8>]{<binary, octal>}[<scale>]
+%%\Bagua*{<decimal>}[<scale>]
+\NewDocumentCommand\Bagua{sO{2}mO{1}}{% \bagua{101110}=\bagua[8]{56}=\bagua*{46}
+	\IfInteger{#3}{% begin of if #3 is an integer
+		\IfBooleanTF#1%
+		{%% begin of If a star is seen
+			\bitsetSetDec{baguadec}{#3}%
+			\xintifboolexpr {#3 >= 1 && #3 <64}%
+			{%
+				\begin{tikzpicture}[baseline=-0.714em,scale=#4]
+					\foreach \j in {5,4,...,0}
+					{
+						\drawliangyi[-\j*0.1632em]{\bitsetGet{baguadec}{\j}};
+					}
+				\end{tikzpicture}%
+			}{\@latex@error{Error! Please check whether 0<=\#2<64.}{}}%
+		}%% end of If a star is seen
+		{%% begin of If no star is seen
+			\ifnum#2=2%
+			\bitsetSetBin{baguabin}{#3}%
+			\StrLen{#3}[\lengthforbinary]%
+			\xintifboolexpr{\lengthforbinary >= 1 && \lengthforbinary <7}%
+			{%
+				\begin{tikzpicture}[baseline=-0.714em,scale=#4]
+					\foreach \j in {5,4,...,0}
+					{
+						\drawliangyi[-\j*0.1632em]{\bitsetGet{baguabin}{\j}};
+					}
+				\end{tikzpicture}%
+			}{\@latex@error{Error! Please check whether 0<=\#2<1000000.}{}}%
+			\else%
+			\ifnum#2=8%
+			\bitsetSetOct{baguaoct}{#3}%
+			\StrLen{#3}[\lengthforoct]%
+			\xintifboolexpr{\lengthforoct =1 || \lengthforoct =2}%
+			{%
+				\begin{tikzpicture}[baseline=-0.714em,scale=#4]
+					\foreach \j in {5,4,...,0}
+					{
+						\drawliangyi[-\j*0.1632em]{\bitsetGet{baguaoct}{\j}};
+					}%
+				\end{tikzpicture}%
+			}{\@latex@error{Error! Please check whether 0<=\#2<100.}{}}%
+			\else{\@latex@error{Error! Please check whether \#1 is default (2) or 8.}{}}\fi%
+			\fi%
+		}%% end of If no star is seen
+	}% end of if #3 is an integer
+	{\@latex@error{Error! Please check whether \#2 is integer.}{}}% else #3 is not an integer
+}
+
+\endinput
+%%
+%% End of file 'tikz-bagua.sty'
