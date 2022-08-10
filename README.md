@@ -29,7 +29,7 @@ Issues and pull requests are welcome.
 Copyright and Licence
 ---------------------
 
-    Copyright (C) 2012, 2014-2020 by WANG Xu <duplli@aliyun.com>
+    Copyright (C) 2021--2022 by WANG Xu <cwangx@hotmail.com>
     ----------------------------------------------------------------------
 
     This work may be distributed and/or modified under the
@@ -49,4 +49,6 @@ Copyright and Licence
     This package consists of the file  tikz-bagua.sty,
                                        tikz-bagua.pdf,
                                        tikz-bagua.tex,
+                                       tikz-bagua-en.pdf,
+                                       tikz-bagua-en.tex,
                                        README.md (this file).
