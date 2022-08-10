@@ -1,13 +1,13 @@
 %% This is file 'tikz-bagua.sty'
 %%
-%% Developed by Xu Wang
-%% Copyright (C) 2021 by Xu Wang <cwangx@hotmail.com>
+%% Developed by WANG Xu
+%% Copyright (C) 2021 by WANG Xu <cwangx@hotmail.com>
 %%
 %% It may be distributed and/or modified under the conditions of
 %% the LaTeX Project Public License (LPPL).
 %%
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{bagua}[2021/10/17 v1.0 draw Bagua in Yijing via tikz package]
+\ProvidesPackage{tikz-bagua}[2022/08/04 v1.01 draw Bagua in Yijing via tikz package]
 
 \RequirePackage{tikz}
 \RequirePackage{xstring}
@@ -16,20 +16,55 @@
 \RequirePackage{xintexpr}
 
 %%\taiji[<scale>]
-\newcommand\taiji[1][0.816]{% taiji yinyang
-	\begin{tikzpicture}[baseline=-0.3em,scale=#1]
-		\draw (0,0) circle (0.5em);
-		\fill (0,-0.5em) arc (270:90:0.25em) arc (-90:90:0.25em) arc (90:270:0.5em);
-		\fill (0,-0.25em) circle (0.05em);
-		\fill [fill=white] (0,0.25em) circle (0.05em);
-	\end{tikzpicture}%
+\NewDocumentCommand\taiji{sO{1}}{% taiji yinyang
+  \IfDecimal{#2}{% % check whether #2 is decimal number 
+    \IfBooleanTF#1% %check whether a star is exist
+    {% begin of a star seen
+      \begin{tikzpicture}[baseline=1.9074,scale=0.17646*#2]
+        \fill plot [domain=0:180,smooth] ({\x*1/180*cos(\x-90)},{\x*1/180*sin(\x-90)+1}) -- (0,2) arc (90:-90:1)  plot [domain=0:180,smooth] ({\x*1/180*cos(\x+90)},{\x*1/180*sin(\x+90)+1});
+        \draw (0,1) circle (1);
+        
+        \fill (0.25,0.25/pi+1) circle ({0.25/exp(1)});
+        \fill [fill=white] (-0.25,-0.25/pi+1) circle ({0.25/exp(1)});
+      \end{tikzpicture}
+    }% end of a star seen
+    {%
+      \begin{tikzpicture}[baseline=1.9074,scale=0.17646*#2]
+        \fill plot [domain=0:180,smooth] ({\x*1/180*cos(\x-90)},{\x*1/180*sin(\x-90)+1}) -- (0,2) arc (90:-90:1)  plot [domain=0:180,smooth] ({\x*1/180*cos(\x+90)},{\x*1/180*sin(\x+90)+1});
+        \draw (0,1) circle (1);
+      \end{tikzpicture}
+    }%
+  }{\@latex@error{Error! Please check whether \#1 is decimal number.}{}}%
 }
+
+%%\xtaiji[<scale>]
+\NewDocumentCommand\xtaiji{sO{1}}{% taiji yinyang
+  \IfDecimal{#2}{% % check whether #2 is decimal number 
+    \IfBooleanTF#1% %check whether a star is exist
+    {% begin of a star seen
+      \begin{tikzpicture}[baseline=1.9074,scale=0.17646*#2]
+        \fill (0,0) arc (270:90:0.5) arc (-90:90:0.5) arc (90:-90:1);
+        \draw (0,1) circle (1);
+        
+        \fill [fill=white] (0,0.5) circle ({0.25/exp(1)});
+        \fill (0,1.5) circle ({0.25/exp(1)});
+      \end{tikzpicture}
+    }% end of a star seen
+    {%
+      \begin{tikzpicture}[baseline=1.9074,scale=0.17646*#2]
+        \fill (0,0) arc (270:90:0.5) arc (-90:90:0.5) arc (90:-90:1);
+        \draw (0,1) circle (1);
+      \end{tikzpicture}
+    }%
+  }{\@latex@error{Error! Please check whether \#1 is decimal number.}{}}%
+}
+
 
 %%\drawliangyi[<yshift>]{<0 or 1>}
 \newcommand\drawliangyi[2][0]{%
-	\ifnum #2=0 \draw (0,#1) -- (1em/3,#1) (2em/3,#1) -- (1em,#1)%;%
+	\ifnum #2=0 \draw [line width=0.0816em] (0,#1) -- (1em/3,#1) (2em/3,#1) -- (1em,#1)%;%
 	\else%
-		\ifnum #2=1 \draw (0,#1) -- (1em,#1)%;%
+		\ifnum #2=1 \draw [line width=0.0816em] (0,#1) -- (1em,#1)%;%
 		\else \node {Error!}%
 		\fi%
 	\fi%
@@ -38,7 +73,7 @@
 %%\liangyi{<0 or 1>}[<scale>]
 \NewDocumentCommand\liangyi{mO{1}}{%
 	\IfInteger{#1}{%
-		\xintifboolexpr{#1 = 0 || #1 = 1}{%
+		\xintifboolexpr{#1 == 0 || #1 == 1}{%
 			\begin{tikzpicture}[baseline=-0.3em,scale=#2]%
 				\drawliangyi{#1};%
 		\end{tikzpicture}}{\@latex@error{Error! Please check whether \#1 is 0 or 1.}{}}%
@@ -117,7 +152,7 @@
 		\IfBooleanTF#1%
 		{%% begin of If a star is seen
 			\bitsetSetDec{baguadec}{#3}%
-			\xintifboolexpr {#3 >= 1 && #3 <64}%
+			\xintifboolexpr {#3 >= 1 && #3 < 64}%
 			{%
 				\begin{tikzpicture}[baseline=-0.714em,scale=#4]
 					\foreach \j in {5,4,...,0}
@@ -131,7 +166,7 @@
 			\ifnum#2=2%
 			\bitsetSetBin{baguabin}{#3}%
 			\StrLen{#3}[\lengthforbinary]%
-			\xintifboolexpr{\lengthforbinary >= 1 && \lengthforbinary <7}%
+			\xintifboolexpr{\lengthforbinary >= 1 && \lengthforbinary < 7}%
 			{%
 				\begin{tikzpicture}[baseline=-0.714em,scale=#4]
 					\foreach \j in {5,4,...,0}
@@ -144,7 +179,7 @@
 			\ifnum#2=8%
 			\bitsetSetOct{baguaoct}{#3}%
 			\StrLen{#3}[\lengthforoct]%
-			\xintifboolexpr{\lengthforoct =1 || \lengthforoct =2}%
+			\xintifboolexpr{\lengthforoct == 1 || \lengthforoct == 2}%
 			{%
 				\begin{tikzpicture}[baseline=-0.714em,scale=#4]
 					\foreach \j in {5,4,...,0}

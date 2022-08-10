@@ -4,17 +4,17 @@
 
 \usepackage{tikz-bagua}
 \usetikzlibrary{math}
-\usepackage[fontset=kefonts]{ctex}
+\usepackage{ctex}%[fontset=kefonts]
 
 \input{binhex}
 
 \usepackage{makeidx}   %创建索引
 
-\makeindex   %创建索引开始命令，有很多可选参数, 文中需要显示索引的地方 \printindex 即可
+\makeindex  
 
 \title{TikZ-Bagua 宏包}
-\author{王旭 (WANG Xu) \\ duplli@aliyun.com}
-\date{\zhtoday~v1.0}
+\author{WANG Xu \\ cwangx@hotmail.com}
+\date{\zhtoday~v1.01}
 
 \begin{document}
 
@@ -26,12 +26,17 @@
 
 \section{使用方法}
 
-所定义的上述五个命令中最后一个可选参数均为放缩参数, 除了 \verb+\taiji+ 中的缺省值为 $0.816$ 之外, 其他四个的均为 $1$.
+所定义的上述五个命令中最后一个可选参数均为放缩参数 \verb|scale|, 缺省值均为 $1$.
 
 \subsection{太极阴阳}
-\verb+\taiji [<scale>]+\index{taiji@\verb+\taiji+}.
 
-\verb+\taiji+ 直接得到 符号 \taiji{}.
+感谢热心网友的指出, 默认是古籍中的太极图, 且没有鱼眼, 加星则显示鱼眼. 鉴于现在常见到的半圆构造的也不少, 故新增命令以显示之, 显示鱼眼规则同上. 
+
+\verb+\taiji [<scale>]+\index{taiji@\verb+\taiji+}, \verb+\taiji* [<scale>]+\index{xtaiji@\verb+\xtaiji+}.
+
+\verb+\xtaiji [<scale>]+\index{taiji@\verb+\taiji+}, \verb+\xtaiji* [<scale>]+\index{xtaiji@\verb+\xtaiji+}.
+
+四个命令默认直接对应得到 符号 \taiji \taiji* \xtaiji \xtaiji*.
 
 \subsection{两仪}
 \verb+\liangyi {<bin>} [<scale>]+\index{liangyi@\verb+\liangyi+}.
@@ -94,6 +99,13 @@
 		}
 	\end{tikzpicture}
 \end{center}
+
+\section{版本记录}
+\subsection*{v1.01~2022.08.04}
+修改默认 \verb+\taiji+ 为无鱼眼的古籍上的太极, 为现在常见的半圆构造新增 \verb+\xtaiji+, 修复了已发现的 bug.
+
+\subsection*{v1.0~2021.10.17}
+发布 \verb+TikZ-Bugua+ 宏包.
 
 \printindex
 
